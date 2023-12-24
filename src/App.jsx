@@ -1,36 +1,55 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-import './App.css'
+import "./App.css";
 
 function App() {
   const [data, setData] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [searchedData, setSearchedData] = useState("");
   const fetchCountries = async () => {
     try {
       const res = await axios.get("https://restcountries.com/v3.1/all");
       setData(res.data);
+      setSearchedData(res.data);
     } catch (error) {
       console.log(error);
+    }
+  };
+  const filterCountries = () => {
+    if (searchValue) {
+      const filteredCountries = data.filter((country) =>
+        country.name.common.toLowerCase().includes(searchValue.toLowerCase())
+      );
+      setSearchedData(filteredCountries);
+    } else {
+      setSearchedData(data);
     }
   };
   useEffect(() => {
     fetchCountries();
   }, []);
-  if (data.length)
+  useEffect(() => {
+    filterCountries();
+  }, [searchValue]);
     return (
-      <div>
-        
+      <div style={{minHeight:"100vh"}}>
+        <input
+          type="text"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+        />
         <div
           style={{
             display: "flex",
             flexWrap: "wrap",
-            justifyContent: "space-between",
+            justifyContent: "center",
             alignItems: "center",
             gap: "1rem",
             padding: "1rem",
           }}
         >
-          {data.map((country) => (
+          {searchedData.length>0 && searchedData.map((country) => (
             <div
               key={country.name.official}
               style={{
@@ -65,4 +84,4 @@ function App() {
     );
 }
 
-export default App
+export default App;
